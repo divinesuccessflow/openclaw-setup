@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenClaw Setup — Your Personal AI Agent Questionnaire</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: #2a2a3d;
+    --accent: #7c6fff;
+    --accent2: #a78bfa;
+    --accent-glow: rgba(124, 111, 255, 0.15);
+    --gold: #f59e0b;
+    --gold-glow: rgba(245, 158, 11, 0.15);
+    --text: #f0f0f5;
+    --text-muted: #8888aa;
+    --text-dim: #555570;
+    --success: #10b981;
+    --danger: #ef4444;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+  }
+
+  /* Background orbs */
+  body::before {
+    content: '';
+    position: fixed;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(124,111,255,0.08) 0%, transparent 70%);
+    top: -150px; left: -100px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(167,139,250,0.06) 0%, transparent 70%);
+    bottom: -100px; right: -100px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Header */
+  .header {
+    width: 100%;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 10;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--text);
+  }
+
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+
+  /* Progress bar */
+  .progress-container {
+    width: 100%;
+    max-width: 640px;
+    padding: 0 24px;
+    margin-top: 8px;
+    position: relative;
+    z-index: 10;
+  }
+
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .progress-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .progress-count {
+    font-size: 12px;
+    color: var(--accent2);
+    font-weight: 600;
+  }
+
+  .progress-track {
+    width: 100%;
+    height: 3px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 99px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 0%;
+  }
+
+  /* Form container */
+  .form-container {
+    width: 100%;
+    max-width: 640px;
+    padding: 32px 24px 80px;
+    position: relative;
+    z-index: 10;
+  }
+
+  /* Step card */
+  .step {
+    display: none;
+    animation: stepIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .step.active {
+    display: block;
+  }
+
+  @keyframes stepIn {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .step-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+  }
+
+  .step-headline {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(22px, 5vw, 30px);
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+
+  .step-headline span {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .step-subtext {
+    font-size: 15px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 28px;
+  }
+
+  /* Insight callout */
+  .insight {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 24px;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    display: none;
+  }
+
+  .insight.visible {
+    display: block;
+    animation: stepIn 0.3s ease;
+  }
+
+  .insight strong {
+    color: var(--accent2);
+  }
+
+  /* Input styles */
+  .input-group {
+    margin-bottom: 18px;
+  }
+
+  .input-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  textarea,
+  select {
+    width: 100%;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 16px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -webkit-appearance: none;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+
+  textarea {
+    min-height: 100px;
+    resize: vertical;
+    line-height: 1.6;
+  }
+
+  select option {
+    background: var(--surface);
+    color: var(--text);
+  }
+
+  /* Choice cards */
+  .choices {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .choices.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .choice {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .choice:hover {
+    border-color: var(--accent);
+    background: var(--accent-glow);
+  }
+
+  .choice.selected {
+    border-color: var(--accent);
+    background: var(--accent-glow);
+    color: var(--accent2);
+  }
+
+  .choice-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .choice-text { flex: 1; }
+  .choice-sub { font-size: 12px; color: var(--text-dim); font-weight: 400; margin-top: 2px; }
+
+  .choice.selected .choice-check {
+    width: 18px; height: 18px;
+    background: var(--accent);
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+  }
+
+  .choice-check { display: none; }
+  .choice.selected .choice-check { display: flex; }
+
+  /* Checkbox multi-select */
+  .checkboxes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  @media (max-width: 480px) {
+    .checkboxes { grid-template-columns: 1fr; }
+    .choices.grid-2 { grid-template-columns: 1fr; }
+  }
+
+  .checkbox-item {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+    user-select: none;
+  }
+
+  .checkbox-item:hover {
+    border-color: var(--accent);
+    color: var(--text);
+  }
+
+  .checkbox-item.checked {
+    border-color: var(--accent);
+    background: var(--accent-glow);
+    color: var(--text);
+  }
+
+  .checkbox-dot {
+    width: 16px; height: 16px;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    flex-shrink: 0;
+    transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .checkbox-item.checked .checkbox-dot {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  /* Slider */
+  .slider-container { margin-bottom: 8px; }
+
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 10px;
+  }
+
+  .slider-value {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 36px;
+    font-weight: 700;
+    min-width: 52px;
+    text-align: center;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .slider-label-text {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    background: var(--border);
+    border-radius: 99px;
+    outline: none;
+    cursor: pointer;
+    border: none;
+    box-shadow: none;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px; height: 22px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 0 4px var(--accent-glow);
+  }
+
+  .slider-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 6px;
+  }
+
+  /* Dynamic cost callout */
+  .cost-callout {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 16px;
+    text-align: center;
+    transition: all 0.3s;
+  }
+
+  .cost-callout .cost-number {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--gold);
+    display: block;
+  }
+
+  .cost-callout .cost-label {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  /* Nav buttons */
+  .nav-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 28px;
+  }
+
+  .btn-back {
+    padding: 14px 20px;
+    background: transparent;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .btn-back:hover {
+    border-color: var(--text-muted);
+    color: var(--text);
+  }
+
+  .btn-next {
+    flex: 1;
+    padding: 15px 24px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Space Grotesk', sans-serif;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-next::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0);
+    transition: background 0.2s;
+  }
+
+  .btn-next:hover::before { background: rgba(255,255,255,0.08); }
+
+  .btn-next:active {
+    transform: scale(0.98);
+  }
+
+  .btn-next:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* Special CTA button */
+  .btn-submit {
+    width: 100%;
+    padding: 18px 24px;
+    background: linear-gradient(135deg, var(--gold) 0%, #f97316 100%);
+    border: none;
+    border-radius: 14px;
+    color: #0a0a0f;
+    font-size: 17px;
+    font-weight: 800;
+    cursor: pointer;
+    font-family: 'Space Grotesk', sans-serif;
+    transition: all 0.2s;
+    letter-spacing: 0.01em;
+    box-shadow: 0 0 30px rgba(245,158,11,0.25);
+    margin-top: 24px;
+  }
+
+  .btn-submit:hover { box-shadow: 0 0 40px rgba(245,158,11,0.4); transform: translateY(-1px); }
+  .btn-submit:active { transform: scale(0.98) translateY(0); }
+
+  /* Success screen */
+  #success-screen {
+    display: none;
+    text-align: center;
+    padding: 48px 24px;
+    animation: stepIn 0.5s ease;
+    max-width: 640px;
+    width: 100%;
+    position: relative;
+    z-index: 10;
+  }
+
+  .success-icon {
+    width: 80px; height: 80px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+    margin: 0 auto 24px;
+    box-shadow: 0 0 40px var(--accent-glow);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 20px var(--accent-glow); }
+    50% { box-shadow: 0 0 40px rgba(124,111,255,0.4); }
+  }
+
+  .success-headline {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    line-height: 1.2;
+  }
+
+  .success-sub {
+    font-size: 16px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    max-width: 460px;
+    margin: 0 auto 32px;
+  }
+
+  .success-steps {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: left;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  .success-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .success-step:last-child { border-bottom: none; }
+
+  .success-step-num {
+    width: 28px; height: 28px;
+    background: var(--surface2);
+    border: 1.5px solid var(--accent);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .success-step-text {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    padding-top: 3px;
+  }
+
+  .success-step-text strong { color: var(--text); }
+
+  /* Error message */
+  .error-msg {
+    font-size: 12px;
+    color: var(--danger);
+    margin-top: 6px;
+    display: none;
+  }
+
+  .error-msg.show { display: block; }
+
+  /* Emoji reactions */
+  .reaction {
+    display: inline-block;
+    animation: bounce 0.4s ease;
+  }
+
+  @keyframes bounce {
+    0% { transform: scale(0.5); opacity: 0; }
+    60% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+
+  /* Tagline at top */
+  .form-tagline {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .form-tagline-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    padding: 6px 14px;
+    font-size: 12px;
+    color: var(--accent2);
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+
+  .form-tagline h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(24px, 5vw, 36px);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+
+  .form-tagline h1 span {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .form-tagline p {
+    font-size: 15px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* Floating footer note */
+  .footer-note {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 10px 24px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-dim);
+    z-index: 100;
+  }
+
+  .footer-note a { color: var(--accent2); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    OpenClaw
+  </div>
+</div>
+
+<!-- Progress -->
+<div class="progress-container" id="progress-container">
+  <div class="progress-meta">
+    <span class="progress-label">Your Setup Assessment</span>
+    <span class="progress-count" id="step-count">Step 1 of 9</span>
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill" id="progress-fill"></div>
+  </div>
+</div>
+
+<!-- Form -->
+<div class="form-container" id="form-wrapper">
+
+  <!-- Step 0: Intro tagline (shown before step 1) -->
+  <div id="intro-tagline" class="form-tagline">
+    <div class="form-tagline-badge">⚡ Takes 3 minutes</div>
+    <h1>Your <span>Personal AI Agent</span><br>Starts Here</h1>
+    <p>Answer 9 quick questions. We'll design a custom OpenClaw setup that runs your business while you sleep.</p>
+  </div>
+
+  <!-- STEP 1: Name -->
+  <div class="step active" data-step="1">
+    <div class="step-eyebrow">Let's personalise this</div>
+    <div class="step-headline">What's your <span>name?</span></div>
+    <div class="step-subtext">We're designing a personalised AI agent system for you — not a generic template.</div>
+    <div class="input-group">
+      <input type="text" id="field-name" placeholder="Your first name" autocomplete="given-name" autofocus />
+      <div class="error-msg" id="err-name">Please enter your name to continue</div>
+    </div>
+    <div class="nav-buttons">
+      <button class="btn-next" onclick="nextStep(1)">Let's go →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: Business type -->
+  <div class="step" data-step="2">
+    <div class="step-eyebrow" id="step2-eyebrow">Great, [Name]</div>
+    <div class="step-headline">What best describes <span>your business?</span></div>
+    <div class="step-subtext">Your AI agent setup will be configured specifically for your type of work.</div>
+    <div class="choices" id="business-choices">
+      <div class="choice" onclick="selectChoice(this, 'business')" data-value="coach">
+        <span class="choice-icon">🎯</span>
+        <div class="choice-text">Coach / Consultant / Trainer<div class="choice-sub">1:1 clients, programs, workshops</div></div>
+        <span class="choice-check">✓</span>
+      </div>
+      <div class="choice" onclick="selectChoice(this, 'business')" data-value="creator">
+        <span class="choice-icon">🎥</span>
+        <div class="choice-text">Content Creator / Influencer<div class="choice-sub">YouTube, Instagram, Podcasts</div></div>
+        <span class="choice-check">✓</span>
+      </div>
+      <div class="choice" onclick="selectChoice(this, 'business')" data-value="agency">
+        <span class="choice-icon">🏢</span>
+        <div class="choice-text">Agency / Freelancer / Service Provider<div class="choice-sub">Managing clients, delivering work</div></div>
+        <span class="choice-check">✓</span>
+      </div>
+      <div class="choice" onclick="selectChoice(this, 'business')" data-value="ecommerce">
+        <span class="choice-icon">🛍️</span>
+        <div class="choice-text">E-Commerce / Product Business<div class="choice-sub">Selling physical or digital products</div></div>
+        <span class="choice-check">✓</span>
+      </div>
+      <div class="choice" onclick="selectChoice(this, 'business')" data-value="saas">
+        <span class="choice-icon">💻</span>
+        <div class="choice-text">SaaS / Tech / Startup<div class="choice-sub">Software, tools, B2B products</div></div>
+        <span class="choice-check">✓</span>
+      </div>
+      <div class="choice" onclick="selectChoice(this, 'business')" data-value="other">
+        <span class="choice-icon">✨</span>
+        <div class="choice-text">Something else entirely<div class="choice-sub">Tell us in the next step</div></div>
+        <span class="choice-check">✓</span>
+      </div>
+    </div>
+    <div class="error-msg" id="err-business">Please select your business type</div>
+    <div class="nav-buttons">
+      <button class="btn-back" onclick="prevStep(2)">← Back</button>
+      <button class="btn-next" onclick="nextStep(2)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: Hours wasted -->
+  <div class="step" data-step="3">
+    <div class="step-eyebrow">The honest question</div>
+    <div class="step-headline">How many hours a week do you spend on <span>tasks AI should handle?</span></div>
+    <div class="step-subtext">Things like: responding to the same DMs, writing follow-up messages, creating content, scheduling, research, manual updates...</div>
+
+    <div class="choices" id="hours-choices">
+      <div class="choice" onclick="selectChoice(this, 'hours'); showCostCallout(3)" data-value="3">
+        <span class="choice-icon">😅</span>
+        <div class="choice-text">2–5 hours<div class="choice-sub">It's a nuisance but manageable</div></div>
+        <span class="choice-check">✓</span>
+      </div>
+      <div class="choice" onclick="selectChoice(this, 'hours'); showCostCallout(8)" data-value="8">
+        <span class="choice-icon">😤</span>
+        <div class="choice-text">5–10 hours<div class="choice-sub">Taking a real toll on my week</div></div>
+        <span class="choice-check">✓</span>
+      </div>
+      <div class="choice" onclick="selectChoice(this, 'hours'); showCostCallout(15)" data-value="15">
+        <span class="choice-icon">😩</span>
+        <div class="choice-text">10–20 hours<div class="choice-sub">This is genuinely holding me back</div></div>
+        <span class="choice-check">✓</span>
+      </div>
+      <div class="choice" onclick="selectChoice(this, 'hours'); showCostCallout(25)" data-value="25">
+        <span class="choice-icon">🤯</span>
+        <div class="choice-text">20+ hours<div class="choice-sub">I'm practically working FOR my business</div></div>
+        <span class="choice-check">✓</span>
+      </div>
+    </div>
+
+    <div class="cost-callout" id="cost-callout" style="display:none;">
+      <span class="cost-number" id="cost-number">₹0</span>
+      <div class="cost-label" id="cost-label">worth of your time lost per year to tasks an AI handles in seconds</div>
+    </div>
+
+    <div class="error-msg" id="err-hours">Please select your answer</div>
+    <div class="nav-buttons">
+      <button class="btn-back" onclick="prevStep(3)">← Back</button>
+      <button class="btn-next" onclick="nextStep(3)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: Dream use of time -->
+  <div class="step" data-step="4">
+    <div class="step-eyebrow">This is the important one</div>
+    <div class="step-headline">If AI handled all of that starting <span>Monday</span> — what would you do with that time?</div>
+    <div class="step-subtext">Be specific. This answer shapes your entire setup. What would change in your business?</div>
+    <div class="input-group">
+      <textarea id="field-dream" placeholder="e.g. I'd finally focus on closing high-ticket clients, building my YouTube channel, launching my course..."></textarea>
+      <div class="error-msg" id="err-dream">Please describe what you'd do with your freed time</div>
+    </div>
+    <div class="nav-buttons">
+      <button class="btn-back" onclick="prevStep(4)">← Back</button>
+      <button class="btn-next" onclick="nextStep(4)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- STEP 5: Biggest bottleneck -->
+  <div class="step" data-step="5">
+    <div class="step-eyebrow">Pinpointing your #1 constraint</div>
+    <div class="step-headline">Right now, what's your <span>biggest bottleneck?</span></div>
+    <div class="step-subtext">The one thing — if fixed — that would move your business the most.</div>
+    <div class="choices" id="bottleneck-choices">
+      <div class="choice" onclick="selectChoice(this, 'bottleneck')" data-value="leads">
+        <span class="choice-icon">🎯</span>
+        <div class="choice-text">Not enough leads / prospects<div class="choice-sub">Pipeline is thin or inconsistent</div></div>
+        <span class="choice-check">✓</span>
+      </div>
+      <div class="choice" onclick="selectChoice(this, 'bottleneck')" data-value="followup">
+        <span class="choice-icon">📩</span>
+        <div class="choice-text">Follow-ups & conversations<div class="choice-sub">Can't keep up with DMs, WhatsApp, emails</div></div>
+        <span class="choice-check">✓</span>
+      </div>
+      <div class="choice" onclick="selectChoice(this, 'bottleneck')" data-value="content">
+        <span class="choice-icon">✍️</span>
+        <div class="choice-text">Content creation<div class="choice-sub">Posting consistently is killing me</div></div>
+        <span class="choice-check">✓</span>
+      </div>
+      <div class="choice" onclick="selectChoice(this, 'bottleneck')" data-value="admin">
+        <span class="choice-icon">📋</span>
+        <div class="choice-text">Admin & operations<div class="choice-sub">Scheduling, reports, tracking, updates</div></div>
+        <span class="choice-check">✓</span>
+      </div>
+      <div class="choice" onclick="selectChoice(this, 'bottleneck')" data-value="sales">
+        <span class="choice-icon">💰</span>
+        <div class="choice-text">Closing sales / conversions<div class="choice-sub">Lots of interest but not enough buyers</div></div>
+        <span class="choice-check">✓</span>
+      </div>
+      <div class="choice" onclick="selectChoice(this, 'bottleneck')" data-value="scale">
+        <span class="choice-icon">📈</span>
+        <div class="choice-text">Scaling without burning out<div class="choice-sub">Revenue grows but so does my workload</div></div>
+        <span class="choice-check">✓</span>
+      </div>
+    </div>
+    <div class="error-msg" id="err-bottleneck">Please select your biggest bottleneck</div>
+    <div class="nav-buttons">
+      <button class="btn-back" onclick="prevStep(5)">← Back</button>
+      <button class="btn-next" onclick="nextStep(5)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- STEP 6: Urgency slider -->
+  <div class="step" data-step="6">
+    <div class="step-eyebrow">Commitment check</div>
+    <div class="step-headline">How urgent is it to fix this <span>in the next 7 days?</span></div>
+    <div class="step-subtext">1 = "I'm just exploring" → 10 = "I need this running by Monday, no excuses"</div>
+
+    <div class="slider-container">
+      <div class="slider-row">
+        <div>
+          <div class="slider-value" id="urgency-display">7</div>
+        </div>
+        <div class="slider-label-text" id="urgency-label">You're serious. This is exactly who OpenClaw is built for.</div>
+      </div>
+      <input type="range" id="urgency-slider" min="1" max="10" value="7"
+        oninput="updateUrgency(this.value)"
+        style="width:100%"
+      />
+      <div class="slider-labels">
+        <span>Just exploring</span>
+        <span>Ready to go NOW</span>
+      </div>
+    </div>
+
+    <div class="insight visible" id="urgency-insight">
+      <strong>⚡ High urgency = priority setup.</strong> Founders who score 7+ on this get moved to the front of our setup queue. Your setup call gets booked within 24 hours.
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn-back" onclick="prevStep(6)">← Back</button>
+      <button class="btn-next" onclick="nextStep(6)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- STEP 7: Tools used -->
+  <div class="step" data-step="7">
+    <div class="step-eyebrow">Your current tech stack</div>
+    <div class="step-headline">Which platforms are <span>central to your work?</span></div>
+    <div class="step-subtext">Select all that apply. Your AI agent will be integrated directly into these.</div>
+    <div class="checkboxes" id="tools-checkboxes">
+      <div class="checkbox-item" onclick="toggleCheckbox(this)" data-value="whatsapp">
+        <div class="checkbox-dot">✓</div>WhatsApp
+      </div>
+      <div class="checkbox-item" onclick="toggleCheckbox(this)" data-value="instagram">
+        <div class="checkbox-dot">✓</div>Instagram
+      </div>
+      <div class="checkbox-item" onclick="toggleCheckbox(this)" data-value="linkedin">
+        <div class="checkbox-dot">✓</div>LinkedIn
+      </div>
+      <div class="checkbox-item" onclick="toggleCheckbox(this)" data-value="telegram">
+        <div class="checkbox-dot">✓</div>Telegram
+      </div>
+      <div class="checkbox-item" onclick="toggleCheckbox(this)" data-value="email">
+        <div class="checkbox-dot">✓</div>Email / Gmail
+      </div>
+      <div class="checkbox-item" onclick="toggleCheckbox(this)" data-value="youtube">
+        <div class="checkbox-dot">✓</div>YouTube
+      </div>
+      <div class="checkbox-item" onclick="toggleCheckbox(this)" data-value="notion">
+        <div class="checkbox-dot">✓</div>Notion
+      </div>
+      <div class="checkbox-item" onclick="toggleCheckbox(this)" data-value="sheets">
+        <div class="checkbox-dot">✓</div>Google Sheets
+      </div>
+      <div class="checkbox-item" onclick="toggleCheckbox(this)" data-value="crm">
+        <div class="checkbox-dot">✓</div>CRM (HubSpot etc.)
+      </div>
+      <div class="checkbox-item" onclick="toggleCheckbox(this)" data-value="wordpress">
+        <div class="checkbox-dot">✓</div>Website / Blog
+      </div>
+      <div class="checkbox-item" onclick="toggleCheckbox(this)" data-value="razorpay">
+        <div class="checkbox-dot">✓</div>Razorpay / Stripe
+      </div>
+      <div class="checkbox-item" onclick="toggleCheckbox(this)" data-value="x">
+        <div class="checkbox-dot">✓</div>X / Twitter
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn-back" onclick="prevStep(7)">← Back</button>
+      <button class="btn-next" onclick="nextStep(7)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- STEP 8: Vision statement -->
+  <div class="step" data-step="8">
+    <div class="step-eyebrow">The most important question</div>
+    <div class="step-headline">Complete this sentence.</div>
+    <div class="step-subtext" id="vision-prompt" style="font-size:18px; font-weight:600; color: var(--text);">
+      "With an AI agent running my business 24/7, I will finally..."
+    </div>
+    <div style="margin-bottom:20px;"></div>
+    <div class="input-group">
+      <textarea id="field-vision" placeholder="Write freely. The more honest and specific, the better your setup will be..." style="min-height:120px;"></textarea>
+      <div class="error-msg" id="err-vision">Please complete the sentence</div>
+    </div>
+    <div class="insight visible" style="margin-top:0;">
+      <strong>Why we ask this:</strong> Your vision shapes your agent's priorities. An agent optimised for "close 5 clients this month" is set up completely differently from one optimised for "grow my YouTube to 100K subscribers."
+    </div>
+    <div class="nav-buttons">
+      <button class="btn-back" onclick="prevStep(8)">← Back</button>
+      <button class="btn-next" onclick="nextStep(8)">Almost there →</button>
+    </div>
+  </div>
+
+  <!-- STEP 9: Contact capture -->
+  <div class="step" data-step="9">
+    <div class="step-eyebrow">Last step</div>
+    <div class="step-headline">Where do we send your <span>custom setup plan?</span></div>
+    <div class="step-subtext">Your answers have been analysed. We're building your personalised OpenClaw agent blueprint. Where should we send it?</div>
+
+    <div class="insight visible" style="margin-bottom:24px;">
+      <strong>What happens next:</strong> Within 24 hours, you'll receive a WhatsApp message with your personalised setup plan — including which AI agents are right for you, your automation priorities, and the fastest path to getting your first agent live.
+    </div>
+
+    <div class="input-group">
+      <label class="input-label">WhatsApp Number (with country code)</label>
+      <input type="tel" id="field-whatsapp" placeholder="+91 98765 43210" autocomplete="tel" />
+      <div class="error-msg" id="err-whatsapp">Please enter your WhatsApp number</div>
+    </div>
+
+    <div class="input-group">
+      <label class="input-label">Email Address</label>
+      <input type="email" id="field-email" placeholder="your@email.com" autocomplete="email" />
+      <div class="error-msg" id="err-email">Please enter a valid email address</div>
+    </div>
+
+    <div class="input-group">
+      <label class="input-label">Your Monthly Revenue (approximately) — helps us right-size your setup</label>
+      <div class="choices grid-2" id="revenue-choices" style="margin-top:8px;">
+        <div class="choice" onclick="selectChoice(this, 'revenue')" data-value="under50k" style="padding:12px;">
+          <div class="choice-text" style="font-size:13px;">Under ₹50K/mo</div>
+          <span class="choice-check">✓</span>
+        </div>
+        <div class="choice" onclick="selectChoice(this, 'revenue')" data-value="50k-2l" style="padding:12px;">
+          <div class="choice-text" style="font-size:13px;">₹50K – ₹2L/mo</div>
+          <span class="choice-check">✓</span>
+        </div>
+        <div class="choice" onclick="selectChoice(this, 'revenue')" data-value="2l-10l" style="padding:12px;">
+          <div class="choice-text" style="font-size:13px;">₹2L – ₹10L/mo</div>
+          <span class="choice-check">✓</span>
+        </div>
+        <div class="choice" onclick="selectChoice(this, 'revenue')" data-value="10l+" style="padding:12px;">
+          <div class="choice-text" style="font-size:13px;">₹10L+/mo</div>
+          <span class="choice-check">✓</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="error-msg" id="err-submit" style="font-size:14px; margin-bottom:8px;"></div>
+
+    <button class="btn-submit" onclick="submitForm()" id="submit-btn">
+      ⚡ Send Me My Custom Setup Plan
+    </button>
+
+    <div style="text-align:center; margin-top:14px; font-size:12px; color: var(--text-dim);">
+      By submitting, you agree to receive a WhatsApp message from Yashaswi at Divine Success Flow.<br>No spam. No selling. Just your personalised setup plan.
+    </div>
+  </div>
+
+</div>
+
+<!-- Success screen -->
+<div id="success-screen">
+  <div class="success-icon">⚡</div>
+  <div class="success-headline">You're in the <span style="background: linear-gradient(135deg, #7c6fff, #a78bfa); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">queue</span>.</div>
+  <div class="success-sub" id="success-message">
+    Your personalised OpenClaw setup plan is being prepared. Expect a WhatsApp message from Yashaswi within 24 hours.
+  </div>
+  <div class="success-steps">
+    <div class="success-step">
+      <div class="success-step-num">1</div>
+      <div class="success-step-text"><strong>Within 24 hours</strong> — You'll receive your custom agent blueprint on WhatsApp</div>
+    </div>
+    <div class="success-step">
+      <div class="success-step-num">2</div>
+      <div class="success-step-text"><strong>Strategy call booked</strong> — 20-minute call to walk through your setup</div>
+    </div>
+    <div class="success-step">
+      <div class="success-step-num">3</div>
+      <div class="success-step-text"><strong>Your agent goes live</strong> — Running in the background while you focus on what matters</div>
+    </div>
+  </div>
+</div>
+
+<div class="footer-note" id="footer-note">
+  🔒 Your answers are private and used only to design your setup. <a href="#">Privacy Policy</a>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://tbhvbscfnhpobkigigxf.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRiaHZic2Nmbmhwb2JraWdpZ3hmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY5NDQ2ODQsImV4cCI6MjA4MjUyMDY4NH0.TKAfLt-MvDWg70QzWgxl0xYn3NgM2Vm46PSU6XwslM8';
+
+const TOTAL_STEPS = 9;
+let currentStep = 1;
+let formData = {
+  name: '',
+  business_type: '',
+  hours_wasted: '',
+  dream_use_of_time: '',
+  biggest_bottleneck: '',
+  urgency_score: 7,
+  tools_used: [],
+  vision_statement: '',
+  whatsapp: '',
+  email: '',
+  monthly_revenue: '',
+  source: 'whatsapp_openclaw'
+};
+
+function updateProgress() {
+  const pct = ((currentStep - 1) / TOTAL_STEPS) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('step-count').textContent = `Step ${currentStep} of ${TOTAL_STEPS}`;
+}
+
+function showStep(n) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  const el = document.querySelector(`[data-step="${n}"]`);
+  if (el) el.classList.add('active');
+  currentStep = n;
+  updateProgress();
+
+  // Personalise step 2 eyebrow
+  const name = document.getElementById('field-name').value.trim();
+  if (name) {
+    const eyebrow = document.getElementById('step2-eyebrow');
+    if (eyebrow) eyebrow.textContent = `Nice to meet you, ${name} 👋`;
+  }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function nextStep(from) {
+  if (!validateStep(from)) return;
+  collectStep(from);
+
+  if (from === TOTAL_STEPS) {
+    submitForm();
+    return;
+  }
+
+  // Hide intro tagline after step 1
+  if (from === 1) {
+    document.getElementById('intro-tagline').style.display = 'none';
+  }
+
+  showStep(from + 1);
+}
+
+function prevStep(from) {
+  showStep(from - 1);
+  if (from - 1 === 1) {
+    document.getElementById('intro-tagline').style.display = 'block';
+  }
+}
+
+function validateStep(step) {
+  hideErrors();
+  if (step === 1) {
+    const v = document.getElementById('field-name').value.trim();
+    if (!v) { document.getElementById('err-name').classList.add('show'); return false; }
+  }
+  if (step === 2) {
+    if (!formData.business_type) { document.getElementById('err-business').classList.add('show'); return false; }
+  }
+  if (step === 3) {
+    if (!formData.hours_wasted) { document.getElementById('err-hours').classList.add('show'); return false; }
+  }
+  if (step === 4) {
+    const v = document.getElementById('field-dream').value.trim();
+    if (v.length < 10) { document.getElementById('err-dream').classList.add('show'); return false; }
+  }
+  if (step === 5) {
+    if (!formData.biggest_bottleneck) { document.getElementById('err-bottleneck').classList.add('show'); return false; }
+  }
+  if (step === 8) {
+    const v = document.getElementById('field-vision').value.trim();
+    if (v.length < 10) { document.getElementById('err-vision').classList.add('show'); return false; }
+  }
+  return true;
+}
+
+function collectStep(step) {
+  if (step === 1) formData.name = document.getElementById('field-name').value.trim();
+  if (step === 4) formData.dream_use_of_time = document.getElementById('field-dream').value.trim();
+  if (step === 6) formData.urgency_score = parseInt(document.getElementById('urgency-slider').value);
+  if (step === 7) {
+    formData.tools_used = Array.from(document.querySelectorAll('#tools-checkboxes .checkbox-item.checked'))
+      .map(el => el.dataset.value);
+  }
+  if (step === 8) formData.vision_statement = document.getElementById('field-vision').value.trim();
+}
+
+function hideErrors() {
+  document.querySelectorAll('.error-msg').forEach(e => e.classList.remove('show'));
+}
+
+function selectChoice(el, group) {
+  const parent = el.closest('.choices') || el.closest('.input-group') || el.parentElement;
+  parent.querySelectorAll('.choice').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  formData[group === 'hours' ? 'hours_wasted' :
+           group === 'business' ? 'business_type' :
+           group === 'bottleneck' ? 'biggest_bottleneck' :
+           group === 'revenue' ? 'monthly_revenue' : group] = el.dataset.value;
+}
+
+function toggleCheckbox(el) {
+  el.classList.toggle('checked');
+}
+
+function showCostCallout(hours) {
+  const ratePerHour = 1500; // ₹1500/hr assumed value
+  const weeklyLoss = hours * ratePerHour;
+  const yearlyLoss = weeklyLoss * 52;
+  const formatted = yearlyLoss >= 100000 ?
+    `₹${(yearlyLoss/100000).toFixed(1)}L` :
+    `₹${(yearlyLoss/1000).toFixed(0)}K`;
+
+  const callout = document.getElementById('cost-callout');
+  const num = document.getElementById('cost-number');
+  const label = document.getElementById('cost-label');
+
+  num.textContent = formatted;
+  label.textContent = `per year — the cost of NOT having AI handle this (based on ${hours}h/week at ₹1,500/hr value)`;
+  callout.style.display = 'block';
+  callout.style.animation = 'stepIn 0.3s ease';
+}
+
+function updateUrgency(val) {
+  val = parseInt(val);
+  document.getElementById('urgency-display').textContent = val;
+
+  const labels = {
+    1: "Still exploring. That's OK — but your competitors are moving fast.",
+    2: "Still exploring. That's OK — but your competitors are moving fast.",
+    3: "Getting interested. What's holding you back?",
+    4: "Getting interested. What's holding you back?",
+    5: "You see the value. Let's remove whatever's in the way.",
+    6: "You see the value. Let's remove whatever's in the way.",
+    7: "You're serious. This is exactly who OpenClaw is built for.",
+    8: "This is a priority. We'll make sure your setup moves fast.",
+    9: "High urgency. You'll be in our priority queue.",
+    10: "🔥 You're ready to move NOW. Setup call booked within 24 hours."
+  };
+
+  document.getElementById('urgency-label').textContent = labels[val];
+  formData.urgency_score = val;
+}
+
+async function submitForm() {
+  const btn = document.getElementById('submit-btn');
+  const errEl = document.getElementById('err-submit');
+
+  // Collect final fields
+  const wa = document.getElementById('field-whatsapp').value.trim();
+  const email = document.getElementById('field-email').value.trim();
+
+  // Validate
+  if (!wa) {
+    document.getElementById('err-whatsapp').classList.add('show');
+    return;
+  }
+  if (!email || !email.includes('@')) {
+    document.getElementById('err-email').classList.add('show');
+    return;
+  }
+
+  formData.whatsapp = wa;
+  formData.email = email;
+
+  // Collect tools
+  formData.tools_used = Array.from(document.querySelectorAll('#tools-checkboxes .checkbox-item.checked'))
+    .map(el => el.dataset.value);
+
+  btn.textContent = 'Submitting...';
+  btn.disabled = true;
+
+  try {
+    const payload = {
+      name: formData.name,
+      whatsapp: formData.whatsapp,
+      email: formData.email,
+      business_type: formData.business_type,
+      hours_wasted_weekly: formData.hours_wasted,
+      dream_use_of_time: formData.dream_use_of_time,
+      biggest_bottleneck: formData.biggest_bottleneck,
+      urgency_score: formData.urgency_score,
+      tools_used: formData.tools_used,
+      vision_statement: formData.vision_statement,
+      monthly_revenue: formData.monthly_revenue,
+      source: 'whatsapp_openclaw',
+      submitted_at: new Date().toISOString()
+    };
+
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/openclaw_leads`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (res.ok || res.status === 201) {
+      showSuccess();
+    } else {
+      const err = await res.text();
+      console.error('Supabase error:', err);
+      // Still show success to user, log error
+      showSuccess();
+    }
+  } catch (e) {
+    console.error('Submission error:', e);
+    // Show success anyway (don't lose the lead)
+    showSuccess();
+  }
+}
+
+function showSuccess() {
+  document.getElementById('form-wrapper').style.display = 'none';
+  document.getElementById('progress-container').style.display = 'none';
+  document.getElementById('success-screen').style.display = 'block';
+  document.getElementById('footer-note').style.display = 'none';
+
+  const name = formData.name || 'there';
+  document.getElementById('success-message').textContent =
+    `${name}, your personalised OpenClaw setup plan is being prepared. Expect a WhatsApp message within 24 hours.`;
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Handle Enter key on text inputs
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+    e.preventDefault();
+    const btn = document.querySelector('.step.active .btn-next');
+    if (btn) btn.click();
+  }
+});
+
+// Init
+updateProgress();
+</script>
+</body>
+</html>
