@@ -821,7 +821,7 @@
     </div>
 
     <div class="cost-callout" id="cost-callout" style="display:none;">
-      <span class="cost-number" id="cost-number">₹0</span>
+      <span class="cost-number" id="cost-number">$0</span>
       <div class="cost-label" id="cost-label">worth of your time lost per year to tasks an AI handles in seconds</div>
     </div>
 
@@ -1021,19 +1021,19 @@
       <label class="input-label">Your Monthly Revenue (approximately) — helps us right-size your setup</label>
       <div class="choices grid-2" id="revenue-choices" style="margin-top:8px;">
         <div class="choice" onclick="selectChoice(this, 'revenue')" data-value="under50k" style="padding:12px;">
-          <div class="choice-text" style="font-size:13px;">Under ₹50K/mo</div>
+          <div class="choice-text" style="font-size:13px;">Under $600/mo</div>
           <span class="choice-check">✓</span>
         </div>
         <div class="choice" onclick="selectChoice(this, 'revenue')" data-value="50k-2l" style="padding:12px;">
-          <div class="choice-text" style="font-size:13px;">₹50K – ₹2L/mo</div>
+          <div class="choice-text" style="font-size:13px;">$600 – $2.5K/mo</div>
           <span class="choice-check">✓</span>
         </div>
         <div class="choice" onclick="selectChoice(this, 'revenue')" data-value="2l-10l" style="padding:12px;">
-          <div class="choice-text" style="font-size:13px;">₹2L – ₹10L/mo</div>
+          <div class="choice-text" style="font-size:13px;">$2.5K – $12K/mo</div>
           <span class="choice-check">✓</span>
         </div>
         <div class="choice" onclick="selectChoice(this, 'revenue')" data-value="10l+" style="padding:12px;">
-          <div class="choice-text" style="font-size:13px;">₹10L+/mo</div>
+          <div class="choice-text" style="font-size:13px;">$12K+/mo</div>
           <span class="choice-check">✓</span>
         </div>
       </div>
@@ -1203,19 +1203,19 @@ function toggleCheckbox(el) {
 }
 
 function showCostCallout(hours) {
-  const ratePerHour = 1500; // ₹1500/hr assumed value
+  const ratePerHour = 20; // $20/hr assumed value
   const weeklyLoss = hours * ratePerHour;
   const yearlyLoss = weeklyLoss * 52;
   const formatted = yearlyLoss >= 100000 ?
-    `₹${(yearlyLoss/100000).toFixed(1)}L` :
-    `₹${(yearlyLoss/1000).toFixed(0)}K`;
+    `$${(yearlyLoss/1000).toFixed(1)}K` :
+    `$${yearlyLoss.toFixed(0)}`;
 
   const callout = document.getElementById('cost-callout');
   const num = document.getElementById('cost-number');
   const label = document.getElementById('cost-label');
 
   num.textContent = formatted;
-  label.textContent = `per year — the cost of NOT having AI handle this (based on ${hours}h/week at ₹1,500/hr value)`;
+  label.textContent = `per year — the cost of NOT having AI handle this (based on ${hours}h/week at $20/hr value)`;
   callout.style.display = 'block';
   callout.style.animation = 'stepIn 0.3s ease';
 }
